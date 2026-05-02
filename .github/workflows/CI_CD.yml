@@ -77,7 +77,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=jpnpe12
-            -Dsonar.organization=João paulo
+            -Dsonar.organization="João paulo"
             -Dsonar.sources=backend,frontend
             -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info,frontend/coverage/lcov.info
         env:
