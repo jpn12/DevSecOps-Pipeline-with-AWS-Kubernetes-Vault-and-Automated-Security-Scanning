@@ -200,7 +200,7 @@ spec:
               echo "DB is ready!"
       containers:
         - name: backend
-          image: ghcr.io/jpn12/End-to-End-DevSecOps-Implementation-on-AWS/backend:865dae3
+          image: ghcr.io/jpn12/End-to-End-DevSecOps-Implementation-on-AWS/backend:e71cfc4
           ports:
             - containerPort: 5000
               protocol: TCP
@@ -307,7 +307,7 @@ spec:
           effect: "NoSchedule"
       containers:
         - name: frontend
-          image: ghcr.io/jpn12/End-to-End-DevSecOps-Implementation-on-AWS/frontend:865dae3
+          image: ghcr.io/jpn12/End-to-End-DevSecOps-Implementation-on-AWS/frontend:e71cfc4
           ports:
             - containerPort: 8080
               protocol: TCP
