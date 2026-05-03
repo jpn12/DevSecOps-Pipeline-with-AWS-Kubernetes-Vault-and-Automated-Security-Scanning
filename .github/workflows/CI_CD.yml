@@ -265,7 +265,7 @@ jobs:
   terraform:
     name: "☁️ Terraform Deployment"
     runs-on: ubuntu-latest
-    #needs: [build, image-scan, iac-scan, update-manifest]#
+    #needs: [build, image-scan, iac-scan, update-manifest]
 
     permissions:
       id-token: write
