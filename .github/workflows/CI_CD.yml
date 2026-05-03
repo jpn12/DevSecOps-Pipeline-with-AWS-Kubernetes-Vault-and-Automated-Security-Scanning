@@ -274,7 +274,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./terraform/Users
+        working-directory: /terraform/Users
 
     steps:
       - uses: actions/checkout@v4
