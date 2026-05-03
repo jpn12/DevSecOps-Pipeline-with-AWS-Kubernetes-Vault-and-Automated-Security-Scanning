@@ -1,4 +1,6 @@
 
+data "aws_caller_identity" "current" {}
+
 ############## Roles ################
 resource "aws_iam_role" "developer_role" {
   name = "developer_role"
