@@ -273,7 +273,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: terraform/Users
+        working-directory: terraform/Users.tf
 
     steps:
       - uses: actions/checkout@v4
