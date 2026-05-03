@@ -13,7 +13,7 @@ variable "environment" {
 variable "cluster_name" {
     description = "Clusters name"
     type = string
-    default = "project-eks"
+    default = "My-project-eks"
 }
 
 variable "cluster_version" {

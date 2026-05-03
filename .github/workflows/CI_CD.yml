@@ -274,7 +274,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./terraform/S3
+        working-directory: ./terraform/Users
 
     steps:
       - uses: actions/checkout@v4
@@ -282,7 +282,7 @@ jobs:
       - name: Fetch AWS creds from Vault
         uses: hashicorp/vault-action@v3
         with:
-          url: http://<endpoint>:8200
+          url: ${{ secrets.Vault_Server }}
           method: jwt
           role: gh-actions-role
           secrets: |
