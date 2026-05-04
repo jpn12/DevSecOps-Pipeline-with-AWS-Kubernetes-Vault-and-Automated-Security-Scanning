@@ -2,19 +2,19 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: jerney
+  name: my_project
   labels:
-    app.kubernetes.io/part-of: jerney
+    app.kubernetes.io/part-of: my_project
 
 ---
 
 apiVersion: v1
 kind: Secret
 metadata:
-  name: jerney-db-secret
-  namespace: jerney
+  name: my_project-db-secret
+  namespace: my_project
   labels:
-    app.kubernetes.io/part-of: jerney
+    app.kubernetes.io/part-of: my_project
 type: Opaque
 data:
   POSTGRES_USER: Restricted
@@ -26,7 +26,7 @@ data:
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: jerney-ebs-sc
+  name: my_project-ebs-sc
 provisioner: ebs.csi.eks.amazonaws.com
 parameters:
   type: gp3
@@ -40,15 +40,15 @@ allowVolumeExpansion: true
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: jerney-db-pvc
-  namespace: jerney
+  name: my_project-db-pvc
+  namespace: my_project
   labels:
-    app.kubernetes.io/part-of: jerney
+    app.kubernetes.io/part-of: my_project
     app.kubernetes.io/component: database
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: jerney-ebs-sc
+  storageClassName: my_project-ebs-sc
   resources:
     requests:
       storage: 10Gi
@@ -58,11 +58,11 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jerney-db
-  namespace: jerney
+  name: my_project-db
+  namespace: my_project
   labels:
-    app.kubernetes.io/name: jerney-db
-    app.kubernetes.io/part-of: jerney
+    app.kubernetes.io/name: my_project-db
+    app.kubernetes.io/part-of: my_project
     app.kubernetes.io/component: database
 spec:
   replicas: 1
@@ -70,12 +70,12 @@ spec:
     type: Recreate # Required for RWO volumes
   selector:
     matchLabels:
-      app.kubernetes.io/name: jerney-db
+      app.kubernetes.io/name: my_project-db
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: jerney-db
-        app.kubernetes.io/part-of: jerney
+        app.kubernetes.io/name: my_project-db
+        app.kubernetes.io/part-of: my_project
         app.kubernetes.io/component: database
     spec:
       # Security: don't automount service account token (DB doesn't need K8s API)
@@ -92,7 +92,7 @@ spec:
               protocol: TCP
           envFrom:
             - secretRef:
-                name: jerney-db-secret
+                name: my_project-db-secret
           volumeMounts:
             - name: db-storage
               mountPath: /var/lib/postgresql/data
@@ -111,36 +111,36 @@ spec:
             runAsNonRoot: false            # Postgres image runs initdb as root then drops
           livenessProbe:
             exec:
-              command: ["pg_isready", "-U", "jerney_user", "-d", "jerney_db"]
+              command: ["pg_isready", "-U", "my_project_user", "-d", "my_project_db"]
             initialDelaySeconds: 15
             periodSeconds: 10
             timeoutSeconds: 5
           readinessProbe:
             exec:
-              command: ["pg_isready", "-U", "jerney_user", "-d", "jerney_db"]
+              command: ["pg_isready", "-U", "my_project_user", "-d", "my_project_db"]
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 3
       volumes:
         - name: db-storage
           persistentVolumeClaim:
-            claimName: jerney-db-pvc
+            claimName: my_project-db-pvc
 
 ---
 # ---- PostgreSQL Service (ClusterIP — internal only) ----
 apiVersion: v1
 kind: Service
 metadata:
-  name: jerney-db
-  namespace: jerney
+  name: my_project-db
+  namespace: my_project
   labels:
-    app.kubernetes.io/name: jerney-db
-    app.kubernetes.io/part-of: jerney
+    app.kubernetes.io/name: my_project-db
+    app.kubernetes.io/part-of: my_project
     app.kubernetes.io/component: database
 spec:
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: jerney-db
+    app.kubernetes.io/name: my_project-db
   ports:
     - port: 5432
       targetPort: 5432
@@ -151,22 +151,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jerney-backend
-  namespace: jerney
+  name: my_project-backend
+  namespace: my_project
   labels:
-    app.kubernetes.io/name: jerney-backend
-    app.kubernetes.io/part-of: jerney
+    app.kubernetes.io/name: my_project-backend
+    app.kubernetes.io/part-of: my_project
     app.kubernetes.io/component: backend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app.kubernetes.io/name: jerney-backend
+      app.kubernetes.io/name: my_project-backend
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: jerney-backend
-        app.kubernetes.io/part-of: jerney
+        app.kubernetes.io/name: my_project-backend
+        app.kubernetes.io/part-of: my_project
         app.kubernetes.io/component: backend
     spec:
       automountServiceAccountToken: false
@@ -181,8 +181,8 @@ spec:
             - sh
             - -c
             - |
-              echo "Waiting for jerney-db:5432..."
-              until nc -z jerney-db 5432; do
+              echo "Waiting for my_project-db:5432..."
+              until nc -z my_project-db 5432; do
                 echo "DB not ready, retrying in 3s..."
                 sleep 3
               done
@@ -197,23 +197,23 @@ spec:
             - name: PORT
               value: "5000"
             - name: DB_HOST
-              value: "jerney-db"
+              value: "my_project-db"
             - name: DB_PORT
               value: "5432"
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: jerney-db-secret
+                  name: my_project-db-secret
                   key: POSTGRES_USER
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: jerney-db-secret
+                  name: my_project-db-secret
                   key: POSTGRES_PASSWORD
             - name: DB_NAME
               valueFrom:
                 secretKeyRef:
-                  name: jerney-db-secret
+                  name: my_project-db-secret
                   key: POSTGRES_DB
           resources:
             requests:
@@ -251,16 +251,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: jerney-backend
-  namespace: jerney
+  name: my_project-backend
+  namespace: my_project
   labels:
-    app.kubernetes.io/name: jerney-backend
-    app.kubernetes.io/part-of: jerney
+    app.kubernetes.io/name: my_project-backend
+    app.kubernetes.io/part-of: my_project
     app.kubernetes.io/component: backend
 spec:
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: jerney-backend
+    app.kubernetes.io/name: my_project-backend
   ports:
     - port: 5000
       targetPort: 5000
@@ -271,22 +271,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jerney-frontend
-  namespace: jerney
+  name: my_project-frontend
+  namespace: my_project
   labels:
-    app.kubernetes.io/name: jerney-frontend
-    app.kubernetes.io/part-of: jerney
+    app.kubernetes.io/name: my_project-frontend
+    app.kubernetes.io/part-of: my_project
     app.kubernetes.io/component: frontend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app.kubernetes.io/name: jerney-frontend
+      app.kubernetes.io/name: my_project-frontend
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: jerney-frontend
-        app.kubernetes.io/part-of: jerney
+        app.kubernetes.io/name: my_project-frontend
+        app.kubernetes.io/part-of: my_project
         app.kubernetes.io/component: frontend
     spec:
       automountServiceAccountToken: false
@@ -331,21 +331,21 @@ spec:
 ---
 # ---- Frontend Service (NodePort — for access via port-forward or node IP) ----
 # NOTE: Changed from LoadBalancer because this AWS account does not support
-# creating load balancers. Use `kubectl port-forward svc/jerney-frontend 8080:80 -n jerney`
+# creating load balancers. Use `kubectl port-forward svc/my_project-frontend 8080:80 -n my_project`
 # to access the frontend locally.
 apiVersion: v1
 kind: Service
 metadata:
-  name: jerney-frontend
-  namespace: jerney
+  name: my_project-frontend
+  namespace: my_project
   labels:
-    app.kubernetes.io/name: jerney-frontend
-    app.kubernetes.io/part-of: jerney
+    app.kubernetes.io/name: my_project-frontend
+    app.kubernetes.io/part-of: my_project
     app.kubernetes.io/component: frontend
 spec:
   type: NodePort
   selector:
-    app.kubernetes.io/name: jerney-frontend
+    app.kubernetes.io/name: my_project-frontend
   ports:
     - port: 80
       targetPort: 8080
@@ -356,19 +356,19 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: jerney-db-allow-backend-only
-  namespace: jerney
+  name: my_project-db-allow-backend-only
+  namespace: my_project
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: jerney-db
+      app.kubernetes.io/name: my_project-db
   policyTypes:
     - Ingress
   ingress:
     - from:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/name: jerney-backend
+              app.kubernetes.io/name: my_project-backend
       ports:
         - port: 5432
           protocol: TCP
@@ -378,19 +378,19 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: jerney-backend-allow-frontend-only
-  namespace: jerney
+  name: my_project-backend-allow-frontend-only
+  namespace: my_project
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: jerney-backend
+      app.kubernetes.io/name: my_project-backend
   policyTypes:
     - Ingress
   ingress:
     - from:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/name: jerney-frontend
+              app.kubernetes.io/name: my_project-frontend
       ports:
         - port: 5000
           protocol: TCP
