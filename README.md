@@ -4,3 +4,5 @@
 <h1>Intro Video</h1>
 https://youtu.be/ybQnfb-Oa4s
 
+Video about the whole process is coming soon
+
