@@ -76,8 +76,8 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v2
         with:
           args: >
-            -Dsonar.projectKey=jpn12
-            -Dsonar.organization=jpn12
+            -Dsonar.projectKey=${{ secrets.PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.PROJECT_ORG}}
             -Dsonar.sources=backend,frontend
             -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info,frontend/coverage/lcov.info
         env:
