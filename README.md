@@ -3,5 +3,5 @@ DevSecOps Project
 <img width="1121" height="526" alt="diagram2" src="https://github.com/user-attachments/assets/462d5df6-4bf8-4d2c-8163-f82f95914986" />
 
 <h1>Intro Video</h1>
-(https://img.youtube.com/vi/VIDEO_ID/0.jpg)(https://youtu.be/ybQnfb-Oa4s))
+https://youtu.be/ybQnfb-Oa4s
 
